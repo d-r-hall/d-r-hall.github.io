@@ -54,6 +54,12 @@ h1 .yr{color:var(--accent)}
 }
 .fact span{display:block; font-size:12px; color:#9fb2c4; line-height:1.25; margin-top:3px}
 .fact.qt b{color:var(--q-dot)} .fact.ct b{color:var(--w5-dot)}
+.deadline{display:inline-flex; align-items:baseline; gap:9px; margin:18px 0 2px;
+  padding:6px 15px 7px; border-radius:999px; font-size:13.5px; color:#ffd7dd;
+  background:rgba(228,0,43,.16); border:1px solid rgba(255,90,110,.5)}
+.deadline b{font-family:"Barlow Condensed",sans-serif; font-weight:600; font-size:23px;
+  line-height:1; color:#ff6274; font-variant-numeric:tabular-nums}
+.deadline span{color:#b9c8d8}
 
 /* ---------- controls ---------- */
 .controls{
@@ -86,11 +92,12 @@ details.swimmer{
 details.swimmer[open]{border-color:#b9c9d8; box-shadow:0 2px 10px rgba(16,35,58,.07)}
 summary{list-style:none; cursor:pointer; padding:11px 13px; display:block}
 summary::-webkit-details-marker{display:none}
-.ident{display:flex; align-items:baseline; gap:8px}
+.ident{display:flex; align-items:baseline; gap:8px; flex-wrap:wrap}
 .nm{font-family:"Barlow Condensed",sans-serif; font-weight:600; font-size:23px; line-height:1.1}
 .age{font-size:12px; font-weight:600; color:var(--ink-2); background:var(--paper);
   border-radius:4px; padding:2px 6px; white-space:nowrap}
-.sq{font-size:12.5px; color:var(--ink-3); margin-left:auto; text-align:right; line-height:1.25}
+.sq{font-size:12.5px; color:var(--ink-3); flex:1 0 100%; margin-top:3px; line-height:1.25}
+@media (min-width:620px){.sq{flex:0 1 auto; margin-left:auto; margin-top:0; text-align:right}}
 .tally{display:flex; gap:6px; align-items:center; margin-top:7px; flex-wrap:wrap}
 .pill{font-size:12px; font-weight:600; border-radius:20px; padding:2px 9px; white-space:nowrap}
 .pill.q{background:var(--q-bg); color:var(--q-ink)}
@@ -166,8 +173,9 @@ footer{font-size:12.5px; color:var(--ink-3); padding:18px 0 0; line-height:1.6}
     <div class="facts">
       <div class="fact"><b id="f-swim">0</b><span>swimmers</span></div>
       <div class="fact qt"><b id="f-qt">0</b><span>with a qualifying time</span></div>
-      <div class="fact ct"><b id="f-ct">0</b><span>with a consideration time</span></div>
+      <div class="fact ct"><b id="f-ct">0</b><span>with consideration time</span></div>
     </div>
+    <p class="deadline" id="deadline"></p>
   </div>
 </header>
 
@@ -183,7 +191,7 @@ footer{font-size:12.5px; color:var(--ink-3); padding:18px 0 0; line-height:1.6}
       <select id="status" aria-label="Filter by standard reached">
         <option value="">Everyone</option>
         <option value="qt">Has a QT</option>
-        <option value="ct">Has a CT</option>
+        <option value="ct">Has a CT but no QT</option>
         <option value="close">Within 5% of a QT</option>
         <option value="close10">Within 10% of a QT</option>
         <option value="nostd">No standard yet</option>
@@ -235,7 +243,8 @@ const els = [];
 DATA.swimmers.forEach(s => {
   const evs = DATA.events.filter(e => s.e[e]);
   s._qt = evs.filter(e => s.e[e].qt && s.e[e].qt.s === 'qualified').length;
-  s._ct = evs.filter(e => s.e[e].ct && s.e[e].ct.s === 'qualified').length;
+  s._ct = evs.filter(e => s.e[e].ct && s.e[e].ct.s === 'qualified' &&
+                          !(s.e[e].qt && s.e[e].qt.s === 'qualified')).length;
   s._close = evs.some(e => s.e[e].qt && s.e[e].qt.s === 'within5');
   s._close10 = evs.some(e => s.e[e].qt && (s.e[e].qt.s === 'within5' || s.e[e].qt.s === 'within10'));
 
@@ -255,7 +264,7 @@ DATA.swimmers.forEach(s => {
 
   d.innerHTML =
     '<summary><div class="ident"><span class="nm">' + s.n + '</span>' +
-    (s.a ? '<span class="age">' + s.a + ' in 2027</span>' : '') +
+    (s.a ? '<span class="age">' + s.a + ' years old in 2027</span>' : '') +
     '<span class="sq">' + s.g.map(tidy).join('<br>') + '</span></div>' +
     (evs.length ? '<div class="tally">' + tally + tallyC + tallyZ + '</div><div class="strip">' + strip + '</div>' : '') +
     '</summary>' +
@@ -310,7 +319,7 @@ function apply() {
       (!sq || s.g.includes(sq)) &&
       (!ag || String(s.a) === ag) &&
       (!st ||
-        (st === 'qt' && s._qt) || (st === 'ct' && s._ct) ||
+        (st === 'qt' && s._qt) || (st === 'ct' && !s._qt && s._ct) ||
         (st === 'close' && s._close) || (st === 'close10' && s._close10) ||
         (st === 'nostd' && !s._qt && !s._ct));
     o.d.hidden = !ok;
@@ -341,9 +350,22 @@ toggle.addEventListener('click', () => {
   toggle.textContent = open ? 'Open all' : 'Close all';
 });
 
+// days remaining until the 11 December cut-off
+(function () {
+  const now = new Date(), t = new Date(now.getFullYear(), 11, 11);
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  if (today > t) t.setFullYear(t.getFullYear() + 1);
+  const days = Math.round((t - today) / 864e5);
+  const el = document.getElementById('deadline');
+  el.innerHTML = days === 0
+    ? '<b>Today</b> is the last day to qualify'
+    : '<b>' + days + '</b> ' + (days === 1 ? 'day' : 'days') + ' left to qualify' +
+      '<span>closes 11 December ' + t.getFullYear() + '</span>';
+})();
+
 document.getElementById('f-swim').textContent = DATA.swimmers.length;
 document.getElementById('f-qt').textContent = DATA.swimmers.filter(s => s._qt).length;
-document.getElementById('f-ct').textContent = DATA.swimmers.filter(s => s._ct).length;
+document.getElementById('f-ct').textContent = DATA.swimmers.filter(s => !s._qt && s._ct).length;
 apply();
 </script>
 </body>
