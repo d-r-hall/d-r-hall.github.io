@@ -171,7 +171,7 @@ footer{font-size:12.5px; color:var(--ink-3); padding:18px 0 0; line-height:1.6}
       </div>
     </div>
     <div class="facts">
-      <div class="fact"><b id="f-swim">0</b><span>swimmers</span></div>
+      <div class="fact"><b id="f-swim">0</b><span id="f-swim-lb">swimmers</span></div>
       <div class="fact qt"><b id="f-qt">0</b><span>with a qualifying time</span></div>
       <div class="fact ct"><b id="f-ct">0</b><span>with consideration time</span></div>
     </div>
@@ -312,7 +312,7 @@ const q = document.getElementById('q'), squad = document.getElementById('squad')
 
 function apply() {
   const term = q.value.trim().toLowerCase(), sq = squad.value, ag = age.value, st = status.value;
-  let shown = 0;
+  let shown = 0, withQT = 0, withCT = 0;
   els.forEach(o => {
     const s = o.s;
     const ok = (!term || o.hay.includes(term)) &&
@@ -323,9 +323,17 @@ function apply() {
         (st === 'close' && s._close) || (st === 'close10' && s._close10) ||
         (st === 'nostd' && !s._qt && !s._ct));
     o.d.hidden = !ok;
-    if (ok) shown++;
+    if (ok) {
+      shown++;
+      if (s._qt) withQT++; else if (s._ct) withCT++;
+    }
   });
   countEl.textContent = shown + ' of ' + els.length + ' swimmers';
+  document.getElementById('f-swim').textContent = shown;
+  document.getElementById('f-qt').textContent = withQT;
+  document.getElementById('f-ct').textContent = withCT;
+  document.getElementById('f-swim-lb').textContent =
+    shown === els.length ? 'swimmers' : 'swimmers shown';
   emptyEl.hidden = shown > 0;
 }
 
@@ -363,9 +371,6 @@ toggle.addEventListener('click', () => {
       '<span>closes 11 December ' + t.getFullYear() + '</span>';
 })();
 
-document.getElementById('f-swim').textContent = DATA.swimmers.length;
-document.getElementById('f-qt').textContent = DATA.swimmers.filter(s => s._qt).length;
-document.getElementById('f-ct').textContent = DATA.swimmers.filter(s => !s._qt && s._ct).length;
 apply();
 </script>
 </body>
