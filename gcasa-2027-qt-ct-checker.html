@@ -205,7 +205,8 @@ footer{font-size:12.5px; color:var(--ink-3); padding:18px 0 0; line-height:1.6}
         <option value="ct">Has a CT but no QT</option>
         <option value="close">Within 5% of a QT</option>
         <option value="close10">Within 10% of a QT</option>
-        <option value="nostd">No standard yet</option>
+        <option value="nostd">Times, but no standard yet</option>
+        <option value="notimes">No times recorded</option>
       </select>
       <select id="sort" aria-label="Sort swimmers">
         <option value="surname">By surname</option>
@@ -353,11 +354,12 @@ function apply() {
     const ok = (!term || o.hay.includes(term)) &&
       (!sq || s.g.includes(sq)) &&
       (!ag || String(s.a) === ag) &&
-      (!scoped || o.evs.length) &&
+      (!scoped || o.evs.length || st === 'notimes') &&
       (!st ||
         (st === 'qt' && o._qt) || (st === 'ct' && !o._qt && o._ct) ||
         (st === 'close' && o._close) || (st === 'close10' && o._close10) ||
-        (st === 'nostd' && !o._qt && !o._ct));
+        (st === 'nostd' && o.evs.length && !o._qt && !o._ct) ||
+        (st === 'notimes' && !o.evs.length));
     o.d.hidden = !ok;
     if (ok) {
       shown++;
