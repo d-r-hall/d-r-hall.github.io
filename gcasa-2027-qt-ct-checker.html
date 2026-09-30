@@ -240,9 +240,9 @@ footer{font-size:12.5px; color:var(--ink-3); padding:18px 0 0; line-height:1.6}
       <span class="key"><i style="background:var(--w5-dot)"></i>Within 5%</span>
       <span class="key"><i style="background:var(--w10-dot)"></i>Within 10%</span>
       <span class="key"><i style="background:var(--no-dot)"></i>More than 10% off</span>
-      <span class="key"><i style="background:var(--none-dot)"></i>No standard set</span>
+      <span class="key"><i style="background:var(--none-dot)"></i>Not entered, or no standard</span>
     </div>
-    In the bar on each swimmer, the upper band is the consideration time and the lower band is the qualifying time, one segment per event they have swum. Figures in each stroke show how far the swimmer is off the standard, and the target is the time they need. Events in grey are ones they have no time for yet, with the standards they would need.
+    In the bar on each swimmer, the upper band is the consideration time and the lower band is the qualifying time, one segment for every event. Grey means no time yet: open the card and those events still show the standards they would need, while the rest show how far off the swimmer is.
   </div>
 
   <footer>
@@ -315,8 +315,14 @@ function mark(kind, m, t) {
 
 function card(o) {
   const s = o.s, evs = o.evs;
-  const strip = evs.map(e => {
-    const c = s.e[e].ct, qq = s.e[e].qt;
+  const inScope = DATA.events.filter(e =>
+    (!stroke.value || strokeOf(e) === stroke.value) &&
+    (!distance.value || distOf(e) === distance.value));
+
+  const strip = inScope.map(e => {
+    const d = s.e[e];
+    if (!d) return '<span class="seg" title="' + e + ' — not entered"><i></i><i></i></span>';
+    const c = d.ct, qq = d.qt;
     const tip = e + ' — CT ' + (c ? label[c.s] : 'none set') + ', QT ' + (qq ? label[qq.s] : 'none set');
     return '<span class="seg" title="' + tip + '"><i class="' + (c ? 's-' + c.s : '') + '"></i>' +
            '<i class="' + (qq ? 's-' + qq.s : '') + '"></i></span>';
@@ -334,9 +340,6 @@ function card(o) {
   const none = 'No ' + (bits.length ? bits.join(' ') + ' ' : '') +
     'times recorded up to ' + DATA.asof + '.';
 
-  const inScope = DATA.events.filter(e =>
-    (!stroke.value || strokeOf(e) === stroke.value) &&
-    (!distance.value || distOf(e) === distance.value));
   const x = s.x || o.pick;
   const body = inScope.map(e => s.e[e] ? row(s, e) : blank(s, e, x)).join('');
   const pick = (!s.x && s.k)
@@ -349,7 +352,8 @@ function card(o) {
   return '<summary><div class="ident"><span class="nm">' + s.n + '</span>' +
     (s.a ? '<span class="age">' + s.a + ' years old in 2027</span>' : '') +
     '<span class="sq">' + s.g.map(tidy).join('<br>') + '</span></div>' +
-    (evs.length ? '<div class="tally">' + tally + '</div><div class="strip">' + strip + '</div>' : '') +
+    (evs.length ? '<div class="tally">' + tally + '</div>' : '') +
+    (inScope.length ? '<div class="strip">' + strip + '</div>' : '') +
     '</summary>' +
     ((body || pick || evs.length)
       ? '<div class="events">' + (evs.length ? '' : '<p class="notimes">' + none + '</p>') +
