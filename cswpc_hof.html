@@ -74,6 +74,10 @@ select{flex:1 1 118px; appearance:none;
 .pick button{min-height:0; padding:7px 13px; font-size:13.5px; border-radius:20px; color:var(--ink-2); cursor:pointer}
 .pick button.on{background:var(--ink); border-color:var(--ink); color:#fff; font-weight:600}
 .pick button:hover{border-color:var(--ink-3)}
+.pick button[data-sex="F"]{border-color:rgba(228,0,43,.35); color:var(--accent)}
+.pick button[data-sex="F"].on{background:var(--accent); border-color:var(--accent); color:#fff}
+.pick button[data-sex="M"]{border-color:rgba(23,92,211,.35); color:#175cd3}
+.pick button[data-sex="M"].on{background:#175cd3; border-color:#175cd3; color:#fff}
 .checkfield{display:flex; align-items:center; gap:7px; font-size:14px; color:var(--ink-2); padding:0 4px}
 .checkfield input{width:16px; height:16px; accent-color:var(--accent)}
 
