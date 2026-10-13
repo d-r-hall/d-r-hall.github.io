@@ -1,4 +1,5 @@
 <title>Cheltenham Swim Rankings</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
@@ -23,10 +24,11 @@ header.top{
   background-image:repeating-linear-gradient(90deg,rgba(255,255,255,.05) 0 2px,transparent 2px 46px);
 }
 .top .wrap{padding-top:26px; padding-bottom:22px}
-.masthead{display:flex; align-items:flex-start; gap:16px}
-.mh{flex:1 1 auto; min-width:0}
-.crests{flex:0 0 auto; width:110px; margin-top:4px}
+.masthead{display:flex; flex-wrap:wrap; align-items:flex-start; gap:16px}
+.mh{flex:1 1 220px; min-width:0}
+.crests{flex:0 0 auto; width:84px; margin-top:4px}
 .crests img{display:block; width:100%; height:auto}
+@media (min-width:420px){.crests{width:110px}}
 @media (min-width:620px){.crests{width:150px}}
 h1{
   font-family:"Barlow Condensed",sans-serif; font-weight:700;
@@ -34,7 +36,7 @@ h1{
   margin:0 0 8px;
 }
 h1 .yr{color:var(--accent)}
-.sub{margin:0; color:#b9c8d8; font-size:15px; max-width:60ch}
+.sub{margin:0; color:#b9c8d8; font-size:15px; max-width:60ch; overflow-wrap:break-word}
 .facts{display:flex; gap:22px; margin-top:20px; flex-wrap:wrap}
 .fact{flex:0 0 auto}
 .fact b{
@@ -43,12 +45,12 @@ h1 .yr{color:var(--accent)}
 }
 .fact span{display:block; font-size:12px; color:#9fb2c4; line-height:1.25; margin-top:3px}
 .fact.hit b{color:#ff8893}
-.badge{display:inline-flex; align-items:baseline; gap:9px; margin:18px 0 2px;
-  padding:6px 15px 7px; border-radius:999px; font-size:13.5px; color:#ffd7dd;
-  background:rgba(228,0,43,.16); border:1px solid rgba(255,90,110,.5)}
+.badge{display:inline-flex; flex-wrap:wrap; align-items:baseline; gap:6px 9px; margin:18px 0 2px;
+  padding:6px 15px 7px; border-radius:18px; font-size:13.5px; color:#ffd7dd;
+  background:rgba(228,0,43,.16); border:1px solid rgba(255,90,110,.5); max-width:100%}
 .badge b{font-family:"Barlow Condensed",sans-serif; font-weight:600; font-size:21px;
   line-height:1; color:#ff6274; font-variant-numeric:tabular-nums}
-.badge span{color:#b9c8d8}
+.badge span{color:#b9c8d8; min-width:0}
 
 /* ---------- controls ---------- */
 .controls{
@@ -63,8 +65,8 @@ input[type=search],select,button{
   border:1px solid var(--line); background:var(--card); border-radius:7px;
   padding:9px 10px; min-height:40px;
 }
-input[type=search]{flex:1 1 220px; min-width:0}
-select{flex:1 1 118px; appearance:none;
+input[type=search]{flex:1 1 180px; min-width:0}
+select{flex:1 1 118px; min-width:0; appearance:none;
   background-image:linear-gradient(45deg,transparent 50%,var(--ink-3) 50%),linear-gradient(135deg,var(--ink-3) 50%,transparent 50%);
   background-position:calc(100% - 15px) 17px,calc(100% - 10px) 17px;
   background-size:5px 5px,5px 5px; background-repeat:no-repeat; padding-right:28px}
@@ -128,6 +130,31 @@ footer.pagefoot a:hover{text-decoration:underline}
 @media (max-width:640px){
   .controls{position:static}
   .count{margin-left:0; width:100%}
+
+  .tablewrap{border:none; box-shadow:none; background:transparent; overflow-x:visible}
+  table{display:block; width:100%; font-size:14px}
+  thead{display:none}
+  tbody{display:block}
+  tbody tr{
+    display:flex; flex-wrap:wrap; align-items:center; column-gap:8px; row-gap:4px;
+    background:var(--card); border:1px solid var(--line); border-radius:10px;
+    padding:10px 12px; margin-bottom:8px;
+  }
+  tbody tr:hover{background:var(--card)}
+  tbody td{display:block; padding:0; border-bottom:none}
+  .sexcell{order:1}
+  .agecell{order:2}
+  .eventcell{order:3; flex:1 1 100%; font-size:12.5px; font-weight:600; letter-spacing:.02em;
+    text-transform:uppercase; color:var(--ink-3)}
+  .namecell{order:4; flex:1 1 auto; font-size:17px}
+  .timecell{order:5; margin-left:auto; font-size:17px}
+  .blankcell{order:4; flex:1 1 100%; font-size:13.5px; font-style:italic; color:var(--ink-3)}
+  .meetcell{order:6; flex:1 1 100%; max-width:none; font-size:12.5px}
+  .datecell{order:7; flex:1 1 100%; font-size:12.5px; color:var(--ink-3)}
+}
+@media (max-width:420px){
+  h1{font-size:28px}
+  .sub{font-size:14px}
 }
 @media print{ .controls{display:none} }
 </style>
@@ -306,20 +333,20 @@ footer.pagefoot a:hover{text-decoration:underline}
     body.innerHTML = rows.map(d=>{
       if(d.no_data){
         return `<tr class="nodata">
-          <td><span class="sexbadge ${d.sex}">${d.sex}</span></td>
-          <td class="num"><span class="agebadge">${d.age}</span></td>
-          <td>${d.event}</td>
-          <td colspan="4">No recorded time for this combination</td>
+          <td class="sexcell"><span class="sexbadge ${d.sex}">${d.sex}</span></td>
+          <td class="num agecell"><span class="agebadge">${d.age}</span></td>
+          <td class="eventcell">${d.event}</td>
+          <td class="blankcell" colspan="4">No recorded time for this combination</td>
         </tr>`;
       }
       return `<tr>
-        <td><span class="sexbadge ${d.sex}">${d.sex}</span></td>
-        <td class="num"><span class="agebadge">${d.age}</span></td>
-        <td>${d.event}</td>
+        <td class="sexcell"><span class="sexbadge ${d.sex}">${d.sex}</span></td>
+        <td class="num agecell"><span class="agebadge">${d.age}</span></td>
+        <td class="eventcell">${d.event}</td>
         <td class="namecell">${d.name||''}</td>
         <td class="timecell">${d.time||''}</td>
         <td class="meetcell">${d.meet||''}</td>
-        <td class="num">${d.date||''}</td>
+        <td class="num datecell">${d.date||''}</td>
       </tr>`;
     }).join('');
 
