@@ -178,7 +178,7 @@ footer.pagefoot a:hover{text-decoration:underline}
 <div class="controls">
   <div class="wrap">
     <div class="row1">
-      <input type="search" id="nameSearch" placeholder="Search a swimmer" aria-label="Search by swimmer name">
+      <select id="nameSearch" aria-label="Filter by swimmer"><option value="">All swimmers</option></select>
       <div class="pick" id="sexPills">
         <button data-sex="all" class="on" aria-pressed="true">All</button>
         <button data-sex="F" aria-pressed="false">Female</button>
@@ -277,6 +277,13 @@ footer.pagefoot a:hover{text-decoration:underline}
     }
   });
 
+  // populate swimmer select, alphabetically by name
+  const nameSelect = document.getElementById('nameSearch');
+  const names = [...new Set(DATA.filter(d=>d.name).map(d=>d.name))].sort((a,b)=>a.localeCompare(b));
+  names.forEach(n=>{
+    nameSelect.innerHTML += `<option value="${n}">${n}</option>`;
+  });
+
   let state = {
     sex: 'all',
     ageFrom: ages[0],
@@ -295,7 +302,7 @@ footer.pagefoot a:hover{text-decoration:underline}
       if(d.age < state.ageFrom || d.age > state.ageTo) return false;
       if(state.distance !== 'all' && d.distance !== state.distance) return false;
       if(state.stroke !== 'all' && d.strokename !== state.stroke) return false;
-      if(state.name && !(d.name||'').toLowerCase().includes(state.name.toLowerCase())) return false;
+      if(state.name && d.name !== state.name) return false;
       if(!state.showEmpty && d.no_data) return false;
       return true;
     });
@@ -396,7 +403,7 @@ footer.pagefoot a:hover{text-decoration:underline}
   ageTo.addEventListener('change', ()=>{ state.ageTo = ageTo.value; render(); });
   distanceSelect.addEventListener('change', ()=>{ state.distance = distanceSelect.value; render(); });
   strokeSelect.addEventListener('change', ()=>{ state.stroke = strokeSelect.value; render(); });
-  document.getElementById('nameSearch').addEventListener('input', e=>{ state.name = e.target.value; render(); });
+  document.getElementById('nameSearch').addEventListener('change', e=>{ state.name = e.target.value; render(); });
 
   document.querySelectorAll('thead th').forEach(th=>{
     th.addEventListener('click', ()=>{
