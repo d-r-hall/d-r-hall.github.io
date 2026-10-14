@@ -1,4 +1,4 @@
-<title>CSWPC HoF</title>
+<title>Cheltenham Swim Rankings</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -48,6 +48,10 @@ h1 .yr{color:var(--accent)}
 .medals-label{display:block; margin:18px 0 7px; font-size:11.5px; font-weight:600;
   letter-spacing:.08em; text-transform:uppercase; color:#9fb2c4}
 .medals{display:flex; flex-wrap:wrap; gap:8px}
+.stdline{color:var(--ink-3); font-size:12px; white-space:nowrap}
+.stdok{color:#1c7c3a; font-weight:600; font-size:12px}
+.stdoff{color:var(--accent); font-size:12px}
+.stdnone{color:var(--ink-3); font-size:12px; font-style:italic}
 .medals-sub{width:100%; font-size:11px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:#9fb2c4; margin-top:4px}
 .medal{display:inline-flex; flex-wrap:wrap; align-items:baseline; gap:6px 9px;
   padding:6px 14px 7px; border-radius:18px; font-size:13.5px; max-width:100%; border:1px solid}
@@ -198,6 +202,8 @@ footer.pagefoot a:hover{text-decoration:underline}
   .timecell{order:5; margin-left:auto; font-size:17px}
   .blankcell{order:4; flex:1 1 100%; font-size:13.5px; font-style:italic; color:var(--ink-3)}
   .meetcell{order:6; flex:1 1 100%; max-width:none; font-size:12.5px}
+  .stdcell{order:7; flex:1 1 100%; text-align:left; font-size:12.5px}
+  .stdcell .marks{min-width:0}
   .datecell{order:7; flex:1 1 100%; font-size:12.5px; color:var(--ink-3)}
 }
 @media (max-width:420px){
@@ -205,6 +211,27 @@ footer.pagefoot a:hover{text-decoration:underline}
   .sub{font-size:14px}
 }
 @media print{ .controls{display:none} }
+:root{
+  --q-dot:#7ab648; --q-bg:#edf7e2; --q-ink:#3c6a1c;
+  --w5-dot:#f0c000; --w5-bg:#fff7d4; --w5-ink:#75570a;
+  --w10-dot:#f08c00; --w10-bg:#ffeeda; --w10-ink:#8a4600;
+  --no-dot:#e03131; --no-bg:#fdeceb; --no-ink:#9c1b1b;
+}
+.marks{display:grid; grid-template-columns:1fr 1fr; gap:4px; min-width:190px}
+.mark{border-radius:7px; padding:5px 7px; display:flex; flex-wrap:wrap; align-items:baseline; gap:2px 6px}
+.mark .lb{font-size:11px; font-weight:600; opacity:.72; letter-spacing:.02em}
+.mark .vl{font-size:13.5px; font-weight:600; font-variant-numeric:tabular-nums}
+.mark .tg{margin-left:0; font-size:11px; opacity:.75; font-variant-numeric:tabular-nums; white-space:nowrap}
+.m-qualified{background:var(--q-bg); color:var(--q-ink)}
+.m-within5{background:var(--w5-bg); color:var(--w5-ink)}
+.m-within10{background:var(--w10-bg); color:var(--w10-ink)}
+.m-none{background:var(--no-bg); color:var(--no-ink)}
+.m-na{background:var(--paper); color:var(--ink-3)}
+.stdmini{display:none; margin-top:4px; text-align:left; font-weight:400}
+@media (min-width:641px){
+  .stdcell{display:none}
+  .stdmini{display:block}
+}
 </style>
 
 <header class="top">
@@ -345,6 +372,38 @@ footer.pagefoot a:hover{text-decoration:underline}
   const nameSelect = document.getElementById('nameSearch');
   const nameCounts = {};
   DATA.forEach(d=>{ if(d.name && !d.no_data) nameCounts[d.name] = (nameCounts[d.name]||0)+1; });
+  // 2027 CT / QT standards (from the GCASA 2027 checker). Each entry is [CT, QT] in seconds.
+  const STD_ACTUAL = {"F":{"12":{"50 Free":[35,33.5],"100 Free":[80,76.3],"200 Free":[165,160],"400 Free":[360,346.5],"800 Free":[730,null],"1500 Free":[1450,null],"50 Back":[40,38.5],"100 Back":[92,85],"200 Back":[189,185],"50 Breast":[47,46],"100 Breast":[105,104.2],"200 Breast":[220,220],"50 Fly":[42,40],"100 Fly":[105,96],"200 Fly":[220,202],"100 IM":[98,91],"200 IM":[195,187],"400 IM":[420,380]},"13":{"50 Free":[33,32],"100 Free":[73.5,71.2],"200 Free":[158,154.5],"400 Free":[332,323],"800 Free":[675,null],"1500 Free":[1380,null],"50 Back":[39,37.7],"100 Back":[87,82.5],"200 Back":[177,170],"50 Breast":[45,43],"100 Breast":[97.5,94],"200 Breast":[206,197],"50 Fly":[38,36],"100 Fly":[95,88],"200 Fly":[200,190.5],"100 IM":[85,82],"200 IM":[180,173.5],"400 IM":[380,353.5]},"14":{"50 Free":[32,31],"100 Free":[71,68.5],"200 Free":[150,147.5],"400 Free":[320,307.7],"800 Free":[645,null],"1500 Free":[1245,null],"50 Back":[37.5,35.5],"100 Back":[82,77.3],"200 Back":[172,163.5],"50 Breast":[42.5,41],"100 Breast":[94,92],"200 Breast":[195,192.8],"50 Fly":[35,34.1],"100 Fly":[86,83],"200 Fly":[190,180],"100 IM":[82,79.3],"200 IM":[172,164.3],"400 IM":[360,346.5]},"15":{"50 Free":[31,30.2],"100 Free":[68,66.8],"200 Free":[147,142],"400 Free":[300,289],"800 Free":[630,null],"1500 Free":[1205,null],"50 Back":[36,34],"100 Back":[80,76],"200 Back":[165,159.5],"50 Breast":[41,39],"100 Breast":[90,86],"200 Breast":[190,179.5],"50 Fly":[34,33.1],"100 Fly":[82,78.5],"200 Fly":[180,170],"100 IM":[80,78],"200 IM":[168,162.1],"400 IM":[350,337.5]},"16":{"50 Free":[30,29.2],"100 Free":[67,63.4],"200 Free":[143,135],"400 Free":[290,283],"800 Free":[615,null],"1500 Free":[1180,null],"50 Back":[35,33.5],"100 Back":[77,73.3],"200 Back":[163,153],"50 Breast":[40,38.5],"100 Breast":[87,84.5],"200 Breast":[187,175.9],"50 Fly":[33,31.5],"100 Fly":[79,72],"200 Fly":[177,160],"100 IM":[78,74.7],"200 IM":[165,155.5],"400 IM":[340,320.7]},"17":{"50 Free":[29.8,29],"100 Free":[65,63],"200 Free":[140,132.7],"400 Free":[289,282],"800 Free":[610,null],"1500 Free":[1165,null],"50 Back":[34,33],"100 Back":[73,72.5],"200 Back":[162,152.5],"50 Breast":[39,37.5],"100 Breast":[85,83],"200 Breast":[187,174.1],"50 Fly":[32,30.5],"100 Fly":[75.5,70],"200 Fly":[175,158.9],"100 IM":[75,73.5],"200 IM":[162,150.5],"400 IM":[335,317.5]},"10/11":{"50 Free":[39,37],"100 Free":[87,84.5],"200 Free":[185,175.5],"400 Free":[390,375],"800 Free":[null,null],"1500 Free":[null,null],"50 Back":[45,42],"100 Back":[100,95.5],"200 Back":[200,194.5],"50 Breast":[53,50],"100 Breast":[115,111],"200 Breast":[240,230],"50 Fly":[47,45.5],"100 Fly":[120,110],"200 Fly":[240,210],"100 IM":[110,100],"200 IM":[210,199],"400 IM":[null,null]},"18+":{"50 Free":[29.5,28.3],"100 Free":[64,61.7],"200 Free":[138,132.2],"400 Free":[288,281],"800 Free":[605,null],"1500 Free":[1165,null],"50 Back":[33.5,32],"100 Back":[72,71],"200 Back":[160,150.7],"50 Breast":[38.5,36.8],"100 Breast":[85,81],"200 Breast":[187,172.4],"50 Fly":[32,29.5],"100 Fly":[73.5,67.2],"200 Fly":[175,150],"100 IM":[72,69],"200 IM":[160,148.1],"400 IM":[335,307.5]}},"M":{"12":{"50 Free":[38,36],"100 Free":[86,80.6],"200 Free":[182,170.5],"400 Free":[365,347.8],"800 Free":[730,null],"1500 Free":[1455,null],"50 Back":[43.5,42],"100 Back":[96,92.8],"200 Back":[200,188.5],"50 Breast":[50,48],"100 Breast":[114,107.7],"200 Breast":[232,215.5],"50 Fly":[46,41.7],"100 Fly":[110,98],"200 Fly":[225,200],"100 IM":[100,94],"200 IM":[202,192.7],"400 IM":[450,386.2]},"13":{"50 Free":[33.5,32.4],"100 Free":[76,72.5],"200 Free":[166,158.4],"400 Free":[345,321.5],"800 Free":[685,null],"1500 Free":[1370,null],"50 Back":[41,39.5],"100 Back":[92,87.8],"200 Back":[190,177.5],"50 Breast":[46,44.5],"100 Breast":[104,100],"200 Breast":[215,202.2],"50 Fly":[40,38],"100 Fly":[100,96],"200 Fly":[210,195],"100 IM":[91,87.5],"200 IM":[190,182.5],"400 IM":[405,369.8]},"14":{"50 Free":[31.5,30.7],"100 Free":[70,67],"200 Free":[152,149],"400 Free":[315,300],"800 Free":[635,null],"1500 Free":[1210,null],"50 Back":[38,36.5],"100 Back":[82,78.6],"200 Back":[172,168],"50 Breast":[43,40.5],"100 Breast":[95,90],"200 Breast":[200,190.5],"50 Fly":[36,34],"100 Fly":[93,88.5],"200 Fly":[200,190],"100 IM":[85,82],"200 IM":[171,167],"400 IM":[360,350]},"15":{"50 Free":[29.2,28.5],"100 Free":[65,62.5],"200 Free":[140,133.5],"400 Free":[290,283.2],"800 Free":[600,null],"1500 Free":[1140,null],"50 Back":[35,33.5],"100 Back":[75.5,73.6],"200 Back":[162,152],"50 Breast":[40,36.4],"100 Breast":[86,82.4],"200 Breast":[185,178.5],"50 Fly":[33,30.7],"100 Fly":[80,73.4],"200 Fly":[180,175],"100 IM":[75,72],"200 IM":[160,151.9],"400 IM":[335,324]},"16":{"50 Free":[28,27.5],"100 Free":[62,61],"200 Free":[135,130.5],"400 Free":[287,279],"800 Free":[585,null],"1500 Free":[1120,null],"50 Back":[33.5,32.5],"100 Back":[74,71],"200 Back":[155,150],"50 Breast":[37,35.6],"100 Breast":[83,79.5],"200 Breast":[180,172],"50 Fly":[31,29.5],"100 Fly":[72,69],"200 Fly":[170,167],"100 IM":[73,70],"200 IM":[157,148.5],"400 IM":[325,309.7]},"17":{"50 Free":[27,26],"100 Free":[58.5,57.5],"200 Free":[131,126.5],"400 Free":[280,270],"800 Free":[575,null],"1500 Free":[1090,null],"50 Back":[32,31.2],"100 Back":[69,67.5],"200 Back":[152,146.7],"50 Breast":[35,33],"100 Breast":[78,76],"200 Breast":[173,168],"50 Fly":[30,27.5],"100 Fly":[70,66.8],"200 Fly":[165,162],"100 IM":[71,68],"200 IM":[152,145],"400 IM":[320,304.6]},"10/11":{"50 Free":[40,38],"100 Free":[90,84],"200 Free":[192,181],"400 Free":[390,360],"800 Free":[null,null],"1500 Free":[null,null],"50 Back":[46,44],"100 Back":[103,98],"200 Back":[215,200],"50 Breast":[55,53.5],"100 Breast":[120,117],"200 Breast":[245,225.5],"50 Fly":[49,46.5],"100 Fly":[120,100],"200 Fly":[240,210],"100 IM":[110,100],"200 IM":[210,199],"400 IM":[null,null]},"18+":{"50 Free":[26,24.5],"100 Free":[57.5,53.8],"200 Free":[127,117.1],"400 Free":[275,255.4],"800 Free":[575,null],"1500 Free":[1090,null],"50 Back":[30,28.4],"100 Back":[66,61.8],"200 Back":[145,130.2],"50 Breast":[34,31.4],"100 Breast":[76,69],"200 Breast":[170,147],"50 Fly":[29,26.7],"100 Fly":[67,59],"200 Fly":[155,140],"100 IM":[65,61.5],"200 IM":[150,130],"400 IM":[310,270]}}};
+  const STROKE_ABBR = {'Freestyle':'Free','Backstroke':'Back','Breaststroke':'Breast','Butterfly':'Fly','Individual Medley':'IM'};
+  function stdFor(d){
+    const age = (d.age === '10' || d.age === '11') ? '10/11' : d.age;
+    const row = STD_ACTUAL[d.sex] && STD_ACTUAL[d.sex][age];
+    if(!row) return null;
+    const ev = d.distance.replace('m','') + ' ' + STROKE_ABBR[d.strokename];
+    const v = row[ev];
+    return v && (v[0] != null || v[1] != null) ? v : null;
+  }
+  function fmtStd(v){
+    if(v == null) return '—';
+    const m = Math.floor(v/60), s = v - m*60;
+    return m ? `${m}:${s.toFixed(2).padStart(5,'0')}` : s.toFixed(2);
+  }
+  // checker-style boxes: colour by how far the swim is from the standard (as a % of the standard)
+  function stdMark(kind, std, t){
+    if(std == null) return '<span class="mark m-na"><span class="lb">' + kind + '</span><span class="vl">&mdash;</span></span>';
+    const g = t - std;
+    const s = g <= 0 ? 'qualified' : g <= std * 0.05 ? 'within5' : g <= std * 0.10 ? 'within10' : 'none';
+    return '<span class="mark m-' + s + '"><span class="lb">' + kind + '</span><span class="vl">' +
+      (g > 0 ? '+' : '') + g.toFixed(2) + '</span><span class="tg">' +
+      (g <= 0 ? 'standard ' : 'target ') + fmtStd(std) + '</span></span>';
+  }
+  function stdCell(d){
+    const st = stdFor(d);
+    const t = d.no_data ? null : timeToSeconds(d.time);
+    if(!st || t == null) return '<span class="stdnone">No 2027 standard</span>';
+    return '<div class="marks">' + stdMark('GCASA 2027 CT', st[0], t) + stdMark('GCASA 2027 QT', st[1], t) + '</div>';
+  }
+
   // top three girls and top three boys by #1 rankings, medals keyed by sex|name
   const medalMap = {};
   const topBySex = {};
@@ -428,9 +487,10 @@ footer.pagefoot a:hover{text-decoration:underline}
         <td class="num agecell"><span class="agebadge">${d.age}</span>${medalMap[d.sex+'|'+d.name] ? ' ' + medalMap[d.sex+'|'+d.name] : ''}</td>
         <td class="eventcell">${d.event}</td>
         <td class="namecell">${d.name||''}</td>
-        <td class="timecell">${d.time||''}</td>
+        <td class="timecell">${d.time||''}<div class="stdmini">${stdCell(d)}</div></td>
         <td class="meetcell">${d.meet||''}</td>
         <td class="num datecell">${d.date||''}</td>
+        <td class="num stdcell">${stdCell(d)}</td>
       </tr>`;
     }).join('');
 
@@ -700,7 +760,7 @@ footer.pagefoot a:hover{text-decoration:underline}
   strokeSelect.addEventListener('change', ()=>{ state.stroke = strokeSelect.value; render(); });
   document.getElementById('nameSearch').addEventListener('change', e=>{ state.name = e.target.value; render(); });
 
-  document.querySelectorAll('thead th').forEach(th=>{
+  document.querySelectorAll('thead th[data-key]').forEach(th=>{
     th.addEventListener('click', ()=>{
       const key = th.dataset.key;
       if(state.sortKey === key){ state.sortDir *= -1; }
