@@ -400,7 +400,7 @@ footer.pagefoot a:hover{text-decoration:underline}
   function stdCell(d){
     const st = stdFor(d);
     const t = d.no_data ? null : timeToSeconds(d.time);
-    if(!st || t == null) return '<span class="stdnone">No 2027 standard</span>';
+    if(!st || t == null) return '<span class="stdnone">No 2027 GCASA standard</span>';
     return '<div class="marks">' + stdMark('GCASA 2027 CT', st[0], t) + stdMark('GCASA 2027 QT', st[1], t) + '</div>';
   }
 
