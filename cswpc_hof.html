@@ -1,4 +1,4 @@
-<title>Cheltenham Swim Rankings</title>
+<title>CSWPC HoF</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -48,6 +48,7 @@ h1 .yr{color:var(--accent)}
 .medals-label{display:block; margin:18px 0 7px; font-size:11.5px; font-weight:600;
   letter-spacing:.08em; text-transform:uppercase; color:#9fb2c4}
 .medals{display:flex; flex-wrap:wrap; gap:8px}
+.medals-sub{width:100%; font-size:11px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:#9fb2c4; margin-top:4px}
 .medal{display:inline-flex; flex-wrap:wrap; align-items:baseline; gap:6px 9px;
   padding:6px 14px 7px; border-radius:18px; font-size:13.5px; max-width:100%; border:1px solid}
 .medal b{font-family:"Barlow Condensed",sans-serif; font-weight:600; font-size:20px;
@@ -344,9 +345,20 @@ footer.pagefoot a:hover{text-decoration:underline}
   const nameSelect = document.getElementById('nameSearch');
   const nameCounts = {};
   DATA.forEach(d=>{ if(d.name && !d.no_data) nameCounts[d.name] = (nameCounts[d.name]||0)+1; });
+  // top three girls and top three boys by #1 rankings, medals keyed by sex|name
+  const medalMap = {};
+  const topBySex = {};
+  ['F','M'].forEach(sx=>{
+    const c = {};
+    DATA.forEach(d=>{ if(d.name && !d.no_data && d.sex===sx) c[d.name]=(c[d.name]||0)+1; });
+    topBySex[sx] = Object.entries(c).sort((a,b)=>b[1]-a[1]).slice(0,3);
+    topBySex[sx].forEach(([n],i)=>{ medalMap[sx+'|'+n] = ['🥇','🥈','🥉'][i]; });
+  });
+  const sexOf = {};
+  DATA.forEach(d=>{ if(d.name && !sexOf[d.name]) sexOf[d.name]=d.sex; });
   const names = [...new Set(DATA.filter(d=>d.name).map(d=>d.name))].sort((a,b)=>a.localeCompare(b));
   names.forEach(n=>{
-    nameSelect.innerHTML += `<option value="${n}">${n} (${nameCounts[n]||0})</option>`;
+    nameSelect.innerHTML += `<option value="${n}">${n}${medalMap[sexOf[n]+'|'+n] ? ' ' + medalMap[sexOf[n]+'|'+n] : ''} (${nameCounts[n]||0})</option>`;
   });
 
   let state = {
@@ -413,7 +425,7 @@ footer.pagefoot a:hover{text-decoration:underline}
       }
       return `<tr>
         <td class="sexcell"><span class="sexbadge ${d.sex}">${d.sex}</span></td>
-        <td class="num agecell"><span class="agebadge">${d.age}</span></td>
+        <td class="num agecell"><span class="agebadge">${d.age}</span>${medalMap[d.sex+'|'+d.name] ? ' ' + medalMap[d.sex+'|'+d.name] : ''}</td>
         <td class="eventcell">${d.event}</td>
         <td class="namecell">${d.name||''}</td>
         <td class="timecell">${d.time||''}</td>
@@ -436,19 +448,21 @@ footer.pagefoot a:hover{text-decoration:underline}
   function renderStats(){
     const withData = DATA.filter(d=>!d.no_data);
     const names = new Set(withData.map(d=>d.name));
-    const counts = {};
-    withData.forEach(d=>{ counts[d.name] = (counts[d.name]||0)+1; });
-    const topThree = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,3);
-    const tiers = ['gold','silver','bronze'];
 
     document.getElementById('factsRow').innerHTML = `
       <div class="fact"><b>${DATA.length}</b><span>combinations queried</span></div>
       <div class="fact hit"><b>${withData.length}</b><span>with a recorded time</span></div>
       <div class="fact"><b>${names.size}</b><span>distinct swimmers</span></div>
     `;
-    document.getElementById('topBadge').innerHTML = topThree.map(([name,count],i)=>
-      `<div class="medal ${tiers[i]}"><b>${count}&times;</b><span>${name}</span></div>`
-    ).join('');
+    const tiers = ['gold','silver','bronze'];
+    const medalEmoji = ['🥇','🥈','🥉'];
+    document.getElementById('topBadge').innerHTML = ['F','M'].map(sx=>{
+      const label = sx==='F' ? 'Girls' : 'Boys';
+      const items = topBySex[sx].map(([name,count],i)=>
+        `<div class="medal ${tiers[i]}"><b>${count}&times;</b><span>${name} ${medalEmoji[i]}</span></div>`
+      ).join('');
+      return `<div class="medals-sub">${label}</div>${items}`;
+    }).join('');
   }
 
   function renderChart(){
